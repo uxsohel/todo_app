@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/app_colors.dart';
 import '../core/app_text.dart';
@@ -61,10 +62,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
       if (mounted) {
         // সফল হলে হোম স্ক্রিনে নিয়ে যাবে এবং ব্যাকস্ট্যাক ক্লিয়ার করবে
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
+
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

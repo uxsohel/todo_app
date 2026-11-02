@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/app_colors.dart';
 import '../core/app_text.dart';
@@ -10,12 +11,17 @@ import '../widgets/primary_button.dart';
 import '../widgets/screen_header.dart';
 import '../widgets/social_button.dart';
 
+
+
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
+
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
+
+
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -24,6 +30,26 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _remember = false;
 
   bool _isLoading = false; // API কল চলার সময় লোডিং দেখানোর জন্য
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('savedEmail');
+    final savedPassword = prefs.getString('savedPassword');
+
+    if (savedEmail != null && savedPassword != null) {
+      setState(() {
+        _email.text = savedEmail;
+        _password.text = savedPassword;
+        _remember = true; // চেকবক্স অটোমেটিক টিক হয়ে থাকবে
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -45,7 +71,20 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() => _isLoading = false);
 
       if (user != null) {
-        // লগইন সফল হলে হোম স্ক্রিনে যাবে
+        final prefs = await SharedPreferences.getInstance();
+
+        // ১. অটো-লগইন এর জন্য (যাতে অ্যাপ কাটলে লগআউট না হয়)
+        await prefs.setBool('isLoggedIn', true);
+
+        // ২. Remember Password এর জন্য ইমেইল ও পাসওয়ার্ড সেভ করা
+        if (_remember) {
+          await prefs.setString('savedEmail', _email.text.trim());
+          await prefs.setString('savedPassword', _password.text);
+        } else {
+          await prefs.remove('savedEmail');
+          await prefs.remove('savedPassword');
+        }
+
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
