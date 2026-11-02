@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text('Sohel Rana', style: AppText.title),
-              Text('sohelrana26@gmail.com', style: AppText.smallGrey),
+              Text('sohel@example.com', style: AppText.smallGrey),
               const SizedBox(height: 24),
 
               // Task counts, live from TaskStore
@@ -83,11 +83,11 @@ class ProfileScreen extends StatelessWidget {
                   onPressed: () => Navigator.pushNamedAndRemoveUntil(
                       context, '/signin', (route) => false),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.primary),
+                    side: const BorderSide(color: AppColors.worning),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
                   ),
-                  child: Text('Sign Out', style: AppText.link14),
+                  child: Text('Sign Out', style: AppText.link15),
                 ),
               ),
               const SizedBox(height: 24),

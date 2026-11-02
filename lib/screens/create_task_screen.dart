@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../core/app_text.dart';
 import '../core/validators.dart';
-import '../data/task_store.dart';
+import '../data/api_service.dart'; // API Service ইম্পোর্ট করা হলো
 import '../models/task.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/pill_chip.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/screen_header.dart';
 
-/// EXTRA SCREEN 1 (not in the Figma file). Built with the same components.
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
 
@@ -30,6 +29,8 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   late DateTime _end;
   Priority _priority = Priority.medium;
   TaskStatus _status = TaskStatus.todo;
+
+  bool _isLoading = false; // API কলের সময় লোডিং দেখানোর জন্য
 
   @override
   void initState() {
@@ -70,26 +71,44 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isLoading = true);
     final messenger = ScaffoldMessenger.of(context);
-    TaskStore.instance.add(
-      Task(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        category: _category.text.trim(),
-        title: _title.text.trim(),
-        progress: _status == TaskStatus.completed ? 1 : 0,
-        startDate: _start,
-        endDate: _end,
-        priority: _priority,
-        status: _status,
-      ),
+
+    // নতুন Task অবজেক্ট তৈরি
+    final newTask = Task(
+      id: '', // MockAPI নিজে থেকেই ID জেনারেট করবে
+      category: _category.text.trim(),
+      title: _title.text.trim(),
+      progress: _status == TaskStatus.completed ? 1.0 : 0.0,
+      startDate: _start,
+      endDate: _end,
+      priority: _priority,
+      status: _status,
     );
-    Navigator.pop(context);
-    messenger.showSnackBar(
-      SnackBar(content: Text('Task created in "${_status.label}"')),
-    );
+
+    // ApiService এর মাধ্যমে ডাটা MockAPI-তে পাঠানো
+    final success = await ApiService().createTask(newTask);
+
+    setState(() => _isLoading = false);
+
+    if (success) {
+      if (mounted) {
+        // true রিটার্ন করে পপ করা হলো, যাতে হোম স্ক্রিন রিফ্রেশ হতে পারে
+        Navigator.pop(context, true);
+        messenger.showSnackBar(
+          SnackBar(content: Text('Task created in "${_status.label}"')),
+        );
+      }
+    } else {
+      if (mounted) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Failed to create task. Try again.')),
+        );
+      }
+    }
   }
 
   @override
@@ -202,7 +221,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   ),
                 ),
               ),
-              PrimaryButton(label: 'Create Task', onPressed: _submit),
+              // API কল চলার সময় বাটন হাইড হয়ে লোডিং স্পিনার দেখাবে
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : PrimaryButton(label: 'Create Task', onPressed: _submit),
               const SizedBox(height: 16),
             ],
           ),

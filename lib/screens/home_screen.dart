@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/app_colors.dart';
 import '../core/app_text.dart';
-import '../data/task_store.dart';
+import '../data/api_service.dart'; // ApiService ইম্পোর্ট করা হলো
 import '../models/task.dart';
 import '../widgets/pill_chip.dart';
 import '../widgets/task_card.dart';
@@ -17,6 +17,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TaskStatus _filter = TaskStatus.inProgress;
   String _query = '';
+
+  // API থেকে আসা ডাটা রাখার জন্য ভেরিয়েবল
+  List<Task> _tasks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks(); // স্ক্রিন ওপেন হলেই ডাটা কল হবে
+  }
+
+  Future<void> _loadTasks() async {
+    try {
+      final tasks = await ApiService().getTasks();
+      setState(() {
+        _tasks = tasks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      debugPrint('Error loading tasks: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 15),
             Expanded(
-              child: ListenableBuilder(
-                listenable: TaskStore.instance,
-                builder: (context, _) {
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator()) // লোডিং স্পিনার
+                  : Builder(
+                builder: (context) {
                   final q = _query.trim().toLowerCase();
-                  final tasks = TaskStore.instance.tasks.where((t) {
+                  // API এর ডাটা থেকে ফিল্টার করা হচ্ছে
+                  final filteredTasks = _tasks.where((t) {
                     final matchesStatus = t.status == _filter;
                     final matchesQuery = q.isEmpty ||
                         t.title.toLowerCase().contains(q) ||
@@ -64,16 +91,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     return matchesStatus && matchesQuery;
                   }).toList();
 
-                  if (tasks.isEmpty) {
+                  if (filteredTasks.isEmpty) {
                     return Center(
                       child: Text('No tasks found', style: AppText.smallGrey),
                     );
                   }
-                  return ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    itemCount: tasks.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => TaskCard(task: tasks[i]),
+                  if (filteredTasks.isEmpty) {
+                    return Center(
+                      child: Text('No tasks found', style: AppText.smallGrey),
+                    );
+                  }
+                  // Ekhane RefreshIndicator add kora hoyeche
+                  return RefreshIndicator(
+                    onRefresh: _loadTasks, // Screen pull korle ei function call hobe
+                    color: AppColors.primary,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      itemCount: filteredTasks.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (_, i) => TaskCard(task: filteredTasks[i]),
+                    ),
                   );
                 },
               ),

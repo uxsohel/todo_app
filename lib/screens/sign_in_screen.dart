@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../core/app_text.dart';
 import '../core/validators.dart';
+import '../data/api_service.dart'; // API Service ইম্পোর্ট করা হলো
 import '../widgets/app_text_field.dart';
 import '../widgets/auth_switch_text.dart';
 import '../widgets/primary_button.dart';
@@ -22,6 +23,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _password = TextEditingController();
   bool _remember = false;
 
+  bool _isLoading = false; // API কল চলার সময় লোডিং দেখানোর জন্য
+
   @override
   void dispose() {
     _email.dispose();
@@ -29,9 +32,31 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  void _signIn() {
+  Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, '/home');
+      setState(() => _isLoading = true);
+
+      // ApiService এর মাধ্যমে ইমেইল এবং পাসওয়ার্ড চেক করা হচ্ছে
+      final user = await ApiService().signInUser(
+        _email.text.trim(),
+        _password.text,
+      );
+
+      setState(() => _isLoading = false);
+
+      if (user != null) {
+        // লগইন সফল হলে হোম স্ক্রিনে যাবে
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } else {
+        // ইমেইল বা পাসওয়ার্ড ভুল হলে এরর মেসেজ দেখাবে
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid email or password. Please try again.')),
+          );
+        }
+      }
     }
   }
 
@@ -78,7 +103,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 value: _remember,
                                 activeColor: AppColors.primary,
                                 materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                MaterialTapTargetSize.shrinkWrap,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(3)),
                                 onChanged: (v) =>
@@ -92,7 +117,10 @@ class _SignInScreenState extends State<SignInScreen> {
                           ],
                         ),
                         const SizedBox(height: 25),
-                        PrimaryButton(label: 'Sign In Now', onPressed: _signIn),
+                        // লোডিং স্পিনার অথবা সাইন ইন বাটন
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : PrimaryButton(label: 'Sign In Now', onPressed: _signIn),
                         const SizedBox(height: 47),
                         Text('Or with', style: AppText.smallBold),
                         const SizedBox(height: 47),

@@ -4,6 +4,7 @@ class AppColors {
   AppColors._();
 
   static const primary = Color(0xFF0560FD);
+  static const worning = Color(0xFFFF0000);
   static const purple = Color(0xFFCC00FF); // Medium priority badge
   static const green = Color(0xFF2ECC71); // Low priority (not in Figma, my addition)
   static const inputBg = Color(0xFFF6F6F6);

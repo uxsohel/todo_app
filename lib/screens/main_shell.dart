@@ -16,22 +16,37 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    _ComingSoon(title: 'Calendar'),
-    _ComingSoon(title: 'Statistics'),
-    ProfileScreen(),
-  ];
+  // HomeScreen রিফ্রেশ করার জন্য একটি ডাইনামিক Key
+  Key _homeKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
+    // List-টি build মেথডের ভেতরে রাখা হলো, যাতে Key আপডেট হলে এটি নতুন করে তৈরি হয়
+    final List<Widget> pages = [
+      HomeScreen(key: _homeKey), // এখানে Key বসানো হয়েছে
+      const _ComingSoon(title: 'Calendar'),
+      const _ComingSoon(title: 'Statistics'),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: IndexedStack(index: _index, children: _pages),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: AppBottomNav(
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
-        onAddTap: () => Navigator.pushNamed(context, '/create-task'),
+        onAddTap: () async {
+          // Navigator.pushNamed-কে await করা হলো
+          final result = await Navigator.pushNamed(context, '/create-task');
+
+          // ক্রিয়েট স্ক্রিন থেকে true রিটার্ন করলে (মানে নতুন টাস্ক তৈরি হলে)
+          if (result == true) {
+            setState(() {
+              // Key পরিবর্তন করে দিলে HomeScreen ফোর্স-রিবিল্ড হবে এবং API নতুন করে কল হবে
+              _homeKey = UniqueKey();
+            });
+          }
+        },
       ),
     );
   }

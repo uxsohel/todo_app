@@ -31,4 +31,5 @@ class AppText {
   static TextStyle get button => _poppins(14, FontWeight.w500, Colors.white);
   static TextStyle get link => _poppins(12, FontWeight.w400, AppColors.primary);
   static TextStyle get link14 => _poppins(14, FontWeight.w500, AppColors.primary);
+  static TextStyle get link15 => _poppins(15, FontWeight.w500, AppColors.worning);
 }
