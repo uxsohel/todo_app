@@ -32,8 +32,8 @@ class ProfileScreen extends StatelessWidget {
                 child: const Icon(Icons.person, size: 48, color: Colors.white),
               ),
               const SizedBox(height: 12),
-              Text('Sarthak', style: AppText.title),
-              Text('sarthak121@gmail.com', style: AppText.smallGrey),
+              Text('Sohel Rana', style: AppText.title),
+              Text('sohelrana26@gmail.com', style: AppText.smallGrey),
               const SizedBox(height: 24),
 
               // Task counts, live from TaskStore

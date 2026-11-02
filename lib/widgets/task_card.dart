@@ -61,13 +61,15 @@ class TaskCard extends StatelessWidget {
           // Progress
           Text('Progress', style: AppText.smallGreyMedium),
           SizedBox(
-            width: 175,
+
             child: Row(
               children: [
-                _ProgressBar(value: task.progress),
-                const Spacer(),
+                Expanded(
+                  child: _ProgressBar(value: task.progress),
+                ),
+                const SizedBox(width: 10),
                 Text('${(task.progress * 100).round()}%',
-                    style: AppText.small),
+                    style: AppText.smallBold),
               ],
             ),
           ),
@@ -79,7 +81,7 @@ class TaskCard extends StatelessWidget {
               _IconText(
                   icon: Icons.calendar_today_outlined,
                   text: formatDate(task.startDate)),
-              const SizedBox(width: 15),
+              const SizedBox(width: 16),
               _IconText(
                   icon: Icons.flag_outlined, text: formatDate(task.endDate)),
             ],
@@ -117,14 +119,24 @@ class _ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 144,
-      height: 4,
+      height: 8,
       child: Stack(
         children: [
-          Container(color: AppColors.track),
+          Container(
+              decoration: BoxDecoration(
+                color: AppColors.track,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              ),
           FractionallySizedBox(
             alignment: Alignment.centerLeft,
             widthFactor: value.clamp(0.0, 1.0),
-            child: Container(color: AppColors.primary),
+            child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10)
+                ),
+            ),
           ),
         ],
       ),

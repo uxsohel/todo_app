@@ -158,7 +158,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                                 readOnly: true,
                                 onTap: () => _pickDate(isStart: false),
                                 suffixIcon: const Icon(
-                                  Icons.flag_outlined,
+                                  Icons.calendar_today_outlined,
                                   size: 18,
                                   color: AppColors.primary,
                                 ),

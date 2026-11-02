@@ -33,17 +33,22 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             Text('Your Task', style: AppText.title),
             const SizedBox(height: 10),
-            Wrap(
-              spacing: 11,
-              runSpacing: 10,
-              children: [
-                for (final s in TaskStatus.values)
-                  PillChip(
-                    label: s.label,
-                    selected: _filter == s,
-                    onTap: () => setState(() => _filter = s),
-                  ),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var i = 0; i < TaskStatus.values.length; i++) ...[
+                    PillChip(
+                      label: TaskStatus.values[i].label,
+                      selected: _filter == TaskStatus.values[i],
+                      onTap: () =>
+                          setState(() => _filter = TaskStatus.values[i]),
+                    ),
+                    if (i < TaskStatus.values.length - 1)
+                      const SizedBox(width: 8),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: 15),
             Expanded(
@@ -86,7 +91,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 46,
+      height: 56,
       child: Row(
         children: [
           Container(
@@ -107,7 +112,7 @@ class _Header extends StatelessWidget {
                 'Hello',
                 style: AppText.small.copyWith(color: AppColors.helloGrey),
               ),
-              Text('Sarthak', style: AppText.title),
+              Text('Sohel', style: AppText.title),
             ],
           ),
           const Spacer(),

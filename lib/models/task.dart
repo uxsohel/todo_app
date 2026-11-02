@@ -1,6 +1,6 @@
 enum Priority { high, medium, low }
 
-enum TaskStatus { todo, inProgress, completed }
+enum TaskStatus { todo, inProgress, completed, pused }
 
 extension PriorityLabel on Priority {
   String get label => switch (this) {
@@ -13,8 +13,9 @@ extension PriorityLabel on Priority {
 extension TaskStatusLabel on TaskStatus {
   String get label => switch (this) {
         TaskStatus.todo => 'To Do',
-        TaskStatus.inProgress => 'in progress',
+        TaskStatus.inProgress => 'In Progress',
         TaskStatus.completed => 'Completed',
+        TaskStatus.pused => 'Pused',
       };
 }
 
