@@ -41,7 +41,7 @@ class Task {
   final TaskStatus status;
 }
 
-/// "12 Jan 2023"
+/// "12 Oct 2026"
 String formatDate(DateTime d) {
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
